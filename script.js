@@ -3,20 +3,18 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 gsap.registerPlugin(ScrollTrigger,ScrollSmoother,SplitText);
 window.addEventListener("load", () => {
-  const videoHero = document.querySelector(".hero video");
-  const videoFooter = document.querySelector("footer video");
+  // VIDEOS DE FUNDO
+  // muted precisa vir antes do play() para o navegador permitir o autoplay
+  function iniciarVideo(video, src) {
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.src = src;
+    video.play().catch(() => {}); // se o navegador bloquear, fica a imagem de fundo
+  }
 
-
-
-  videoHero.src = "/img/video-hero.mp4";
-  videoHero.autoPlay = true;
-  videoHero.loop = true;
-  videoHero.muted = true
-
-videoFooter.src = "/img/video-footer.mp4";
-  videoFooter.autoPlay = true;
-  videoFooter.loop = true;
-  videoFooter.muted = true
+  iniciarVideo(document.querySelector(".hero video"), "img/video-hero.mp4");
+  iniciarVideo(document.querySelector("footer video"), "img/video-footer.mp4");
 
   //QUANDO ROLO A PAGINA CADA RETANGULO DESCE
 
@@ -113,7 +111,7 @@ videoFooter.src = "/img/video-footer.mp4";
   //Inserir objeto 3D
   let diamante = null;
   const glftLoader = new GLTFLoader();
-  glftLoader.load("/img/diamond-compressed.glb", (objeto) => {
+  glftLoader.load("img/diamond-compressed.glb", (objeto) => {
     diamante = objeto.scene;
     diamante.position.z = -8;
     diamante.position.y = 2;
@@ -155,7 +153,7 @@ videoFooter.src = "/img/video-footer.mp4";
 
   //INSERIR TEXTURA
   const txtLoader = new THREE.TextureLoader();
-  txtLoader.load("/img/hdri.webp", (texturaCarregada) => {
+  txtLoader.load("img/hdri.webp", (texturaCarregada) => {
     texturaCarregada.mapping = THREE.EquirectangularReflectionMapping;
     const pmrem = new THREE.PMREMGenerator(renderizador);
     const ambiente = pmrem.fromEquirectangular(texturaCarregada).texture;
@@ -173,4 +171,11 @@ videoFooter.src = "/img/video-footer.mp4";
   }
 
   animar();
+
+  // AJUSTAR O 3D QUANDO A JANELA MUDA DE TAMANHO
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderizador.setSize(window.innerWidth, window.innerHeight);
+  });
 });
